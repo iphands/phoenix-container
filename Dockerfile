@@ -13,13 +13,10 @@ RUN adduser user
 USER user
 WORKDIR /home/user
 
-RUN git clone --recursive https://github.com/team-phoenix/Phoenix.git phoenix
-RUN mkdir /home/user/phoenix-build
+RUN git clone --recursive https://github.com/team-phoenix/Phoenix.git phoenix && mkdir /home/user/phoenix-build
 WORKDIR /home/user/phoenix-build
 
-RUN cmake ../phoenix
-RUN cat Makefile
-RUN make -j12
+RUN cmake ../phoenix && make -j12
 
 LABEL com.nvidia.volumes.needed="nvidia_driver"
 ENV PATH /usr/local/nvidia/bin:${PATH}
