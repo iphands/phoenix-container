@@ -1,8 +1,12 @@
 #!/bin/bash
 set -e
 
-docker build -t docker.io/iphands/phoenix .
-HASH=`docker run docker.io/iphands/phoenix /home/user/git-version-helper.sh`
-docker tag docker.io/iphands/phoenix docker.io/iphands/phoenix:${HASH}
-docker push docker.io/iphands/phoenix:${HASH}
+PREFIX=docker.io/iphands
+CONTAINER_NAME=phoenix-emu-unofficial
+URL=${PREFIX}/${CONTAINER_NAME}
+
+docker build -t $URL .
+HASH=`docker run $URL /home/user/git-version-helper.sh`
+docker tag $URL $URL:${HASH}
+docker push $URL:${HASH}
 
