@@ -1,30 +1,22 @@
-FROM fedora:28
+FROM frolvlad/alpine-glibc
+# FROM alpine:3.7
 
-RUN dnf install -y git cmake gcc-c++ make \
-        quazip quazip-devel \
-        libsamplerate libsamplerate-devel \
-        SDL2 SDL2-devel \
-        qt5-qtgraphicaleffects \
-        qt5-qtquickcontrols \
-        qt5-devel &&\
-        dnf clean all
+RUN apk update && \
+    apk upgrade && \
+    apk add wget sdl2 libsamplerate gst-plugins-base0.10 libxi
 
-RUN adduser user
+RUN adduser -D -u 1000 user
 USER user
 WORKDIR /home/user
 
-RUN git clone --recursive https://github.com/team-phoenix/Phoenix.git phoenix && mkdir /home/user/phoenix-build
-WORKDIR /home/user/phoenix-build
+RUN wget https://github.com/team-phoenix/Phoenix/releases/download/v0.0.1-pre-alpha/Phoenix-v0.0.1-pre-alpha-Linux-x64-full.zip
+RUN unzip ./Phoenix-v0.0.1-pre-alpha-Linux-x64-full.zip
 
-RUN cmake ../phoenix && make -j12
-
-LABEL com.nvidia.volumes.needed="nvidia_driver"
-ENV PATH /usr/local/nvidia/bin:${PATH}
-ENV LD_LIBRARY_PATH /usr/local/nvidia/lib:/usr/local/nvidia/lib64:${LD_LIBRARY_PATH}
-
-COPY container-scripts/git-version-helper.sh /home/user/git-version-helper.sh
 USER root
-RUN chmod 755 /home/user/git-version-helper.sh ; chown user:user /home/user/git-version-helper.sh
-USER user
+
+RUN apk add libxcb xcb-util-renderutil libsm xcb-util-image xcb-util-wm xcb-util-keysyms eudev mesa-egl
+
+RUN echo http://dl-cdn.alpinelinux.org/alpine/edge/community >>/etc/apk/repositories && echo http://dl-cdn.alpinelinux.org/alpine/edge/main >>/etc/apk/repositories && apk update
+RUN apk add pulseaudio-libs
 
 CMD [ "/home/user/phoenix-build/Phoenix" ]
